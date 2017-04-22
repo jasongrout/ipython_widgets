@@ -412,15 +412,15 @@ abstract class ManagerBase<T> {
     set_state(state, displayOptions) {
         // Recreate all the widget models for the given widget manager state.
         let all_models = this._get_comm_info().then(live_comms => {
-            return Promise.all(Object.keys(state).map(model_id => {
+            return Promise.all(Object.keys(state.state).map(model_id => {
 
                 // First put back the binary buffers
                 let decode = {'base64': toByteArray, 'hex': utils.hexToBuffer};
-                let modelState = state[model_id].state;
+                let modelState = state.state[model_id];
                 if (modelState.buffers) {
                     let bufferPaths = modelState.buffers.map(b => b.path);
                     let buffers = modelState.buffers.map(b => decode[b.encoding](b.data));
-                    utils.put_buffers(modelState, bufferPaths, buffers);
+                    utils.put_buffers(modelState.state, bufferPaths, buffers);
                 }
 
                 // If the model has already been created, set its state and then
@@ -428,7 +428,7 @@ abstract class ManagerBase<T> {
                 if (this._models[model_id]) {
                     return this._models[model_id].then(model => {
                         // deserialize state
-                        return model.constructor._deserialize_state(modelState || {}, this).then(attributes => {
+                        return model.constructor._deserialize_state(modelState.state || {}, this).then(attributes => {
                             model.set_state(attributes);
                             return model;
                         });
@@ -439,17 +439,17 @@ abstract class ManagerBase<T> {
                     return this._create_comm(this.comm_target_name, model_id).then(new_comm => {
                         return this.new_model({
                             comm: new_comm,
-                            model_name: state[model_id].model_name,
-                            model_module: state[model_id].model_module,
-                            model_module_version: state[model_id].model_module_version
+                            model_name: state.state[model_id].state.model_name,
+                            model_module: state.state[model_id].state.model_module,
+                            model_module_version: state.state[model_id].state.model_module_version
                         });
                     });
                 } else {                                    // dead comm
                     return this.new_model({
                         model_id: model_id,
-                        model_name: state[model_id].model_name,
-                        model_module: state[model_id].model_module,
-                        model_module_version: state[model_id].model_module_version
+                        model_name: state.state[model_id].state.model_name,
+                        model_module: state.state[model_id].state.model_module,
+                        model_module_version: state.state[model_id].state.model_module_version
                     }, modelState);
                 }
             }));
