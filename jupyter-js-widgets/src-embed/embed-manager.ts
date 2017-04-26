@@ -43,18 +43,19 @@ class EmbedManager extends ManagerBase<HTMLElement> {
     };
 
     /**
-     * Takes a requirejs success handler and returns a requirejs error handler
-     * that attempts loading the module from unpkg.
+     * Load a class and return a promise to the loaded object.
      */
-    require_error(success_callback, failure_callback, version : string) {
-        return function(err) : any {
-            var failedId = err.requireModules && err.requireModules[0];
-            if (failedId) {
-                // TODO: Get typing to work for requirejs
-                (window as any).require(['https://unpkg.com/' + failedId + '@' + version + '/dist/index.js'], success_callback);
+    protected loadClass(options) {
+        let packageName = options.package || options.module;
+        let packageVersion = options.packageVersion || '*';
+        return new Promise(function(resolve, reject) {
+            (window as any).require([`https://unpkg.com/${packageName}@${packageVersion}/dist/index.js`], resolve, reject);
+        }).then(function(module) {
+            if (module[options.class] === undefined) {
+                throw new Error('Class ' + options.class + ' not found in module ' + packageName);
             } else {
-                failure_callback(err);
+                return module[options.class];
             }
-        };
+        });
     }
 };

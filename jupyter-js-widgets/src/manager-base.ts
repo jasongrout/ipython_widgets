@@ -145,12 +145,11 @@ abstract class ManagerBase<T> {
     create_view(model, options) {
         model.state_change = model.state_change.then(() => {
 
-            return this.loadClass(
-                model.get('_view_name'),
-                model.get('_view_module'),
-                model.get('_view_module_version'),
-                this.require_error
-            ).then((ViewType) => {
+            return this.loadClass({
+                class: model.get('_view_name'),
+                'module': model.get('_view_module'),
+                moduleVersion: model.get('_view_module_version'),
+            }).then((ViewType) => {
                 var view = new ViewType({
                     model: model,
                     options: this.setViewOptions(options)
@@ -319,11 +318,11 @@ abstract class ManagerBase<T> {
             return widget_model;
         };
 
-        var model_promise = this.loadClass(options.model_name,
-                                           options.model_module,
-                                           options.model_module_version,
-                                           that.require_error)
-        .then(function(ModelType) {
+        var model_promise = this.loadClass({
+            class: options.model_name,
+            'module': options.model_module,
+            moduleVersion: options.model_module_version
+        }).then(function(ModelType) {
             try {
                 return ModelType._deserialize_state(serialized_state || {}, that)
                 .then(function(attributes) {
@@ -444,16 +443,15 @@ abstract class ManagerBase<T> {
     /**
      * Load a class and return a promise to the loaded object.
      */
-    protected loadClass(className, moduleName, moduleVersion, error) {
-        return utils.loadClass(className, moduleName, moduleVersion, null, error);
-    }
-
-    abstract _create_comm(comm_target_name, model_id, data?): Promise<any>;
-
-    abstract _get_comm_info();
+    protected abstract loadClass(options: loadClassOptions): Promise<any>;
+    protected abstract _create_comm(comm_target_name, model_id, data?): Promise<any>;
+    protected abstract _get_comm_info();
 
     /**
      * Dictionary of model ids and model instance promises
      */
     private _models: any = Object.create(null);
 }
+
+export
+type loadClassOptions = {class: string, module: string, moduleVersion: string, package?: string, packageVersion?: string}
