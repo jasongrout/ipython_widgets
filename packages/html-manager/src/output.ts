@@ -11,7 +11,7 @@ import { HTMLManager } from './htmlmanager';
 
 import * as $ from 'jquery';
 
-import '../css/output.css';
+import './output.css';
 
 export class OutputModel extends outputBase.OutputModel {
     defaults() {
