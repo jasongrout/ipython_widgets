@@ -5,7 +5,6 @@ declare var  __webpack_public_path__:string;
 __webpack_public_path__ = (window as any).__jupyter_widgets_assets_path__ || __webpack_public_path__;
 
 import 'font-awesome/css/font-awesome.css';
-import '@phosphor/widgets/style/index.css';
 import '@jupyter-widgets/controls/css/widgets.built.css';
 
 // Used just for the typing. We must not import the javascript because we don't

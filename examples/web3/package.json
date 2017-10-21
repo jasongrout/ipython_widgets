@@ -16,7 +16,6 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@jupyter-widgets/base": "^1.0.4",
-    "@jupyter-widgets/controls": "^1.0.5",
     "@jupyter-widgets/html-manager": "^0.10.5",
     "@jupyterlab/services": "^0.50.2",
     "@phosphor/disposable": "^1.1.0",
