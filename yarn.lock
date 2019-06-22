@@ -8757,6 +8757,11 @@ webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
 
+webmidi@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/webmidi/-/webmidi-2.3.3.tgz#26ed86a1a8063da2d95fe299419519346cba603a"
+  integrity sha512-NYePCdUdQ5W0ZvBkQ1aYyzV6gZ96TVcO9T02sGcsRfiSHE8nda1752DGjA+vvOlo0bEbMYqgOrjusBBCALdwFQ==
+
 webpack-dev-middleware@^1.12.0:
   version "1.12.2"
   resolved "https://registry.npmjs.org/webpack-dev-middleware/-/webpack-dev-middleware-1.12.2.tgz#f8fc1120ce3b4fc5680ceecb43d777966b21105e"
