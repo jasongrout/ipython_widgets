@@ -1,6 +1,7 @@
 // Copyright (c) Jupyter Development Team.
 // Distributed under the terms of the Modified BSD License.
 
+
 import * as utils from './utils';
 import * as backbonePatch from './backbone-patch';
 
@@ -50,6 +51,7 @@ import {
 import {
     KernelMessage
 } from '@jupyterlab/services';
+import { IDataStore } from './datastore';
 
 /**
  * Replace model ids with models recursively.
@@ -92,11 +94,20 @@ interface ISerializers {
 }
 
 
+/**
+ * The widget manager provides an IDataStore with a generic state, and each
+ * widget declares it as IDataStore<custom state>, so it only sends/receives
+ * valid values.
+ * 
+ * todo: abstract out comms to the data store, so the widget has some idea of connection status with the data store. also, the data store needs a way to send one-off custom messages, not just sync state.
+ */
 export
 class WidgetModel extends Backbone.Model {
 
     /**
      * The default attributes.
+     * 
+     * BACKBONE
      */
     defaults(): Backbone.ObjectHash {
         return {
@@ -562,6 +573,13 @@ class WidgetModel extends Backbone.Model {
             deserialized = state;
         }
         return utils.resolvePromisesDict(deserialized);
+    }
+
+    /**
+     * Override this to return managerBase.IDataStore<MYSTATE> for type checking.
+     */
+    get store(): IDataStore<any> {
+        return this.widget_manager.store;
     }
 
     static serializers: ISerializers;

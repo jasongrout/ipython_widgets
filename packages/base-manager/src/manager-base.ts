@@ -21,6 +21,8 @@ import {
 } from './utils';
 
 
+import {IDataStore} from './datastore';
+
 const PROTOCOL_MAJOR_VERSION = PROTOCOL_VERSION.split('.', 1)[0];
 
 
@@ -470,6 +472,8 @@ export abstract class ManagerBase<T> implements IWidgetManager {
      * Dictionary of model ids and model instance promises
      */
     private _models: {[key: string]: Promise<WidgetModel>} = Object.create(null);
+
+    abstract store: IDataStore<any>;
 }
 
 

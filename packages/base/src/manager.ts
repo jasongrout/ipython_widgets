@@ -13,6 +13,8 @@ import {
     DOMWidgetModel, DOMWidgetView, WidgetModel, WidgetView
 } from './widget';
 
+import { IDataStore } from './datastore';
+
 
 /**
  * The options for a model.
@@ -184,4 +186,9 @@ interface IWidgetManager {
      * The default implementation just returns the original url.
      */
     resolveUrl(url: string): Promise<string>;
+
+    /**
+     * Data store to sync data
+     */
+    store: IDataStore<any>;
 }
