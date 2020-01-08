@@ -10,7 +10,7 @@ import {
 } from './widget_description';
 
 import {
-    h, VirtualDom
+    h, VirtualDOM
 } from '@lumino/virtualdom';
 
 import {
@@ -304,15 +304,23 @@ class RadioButtonsView extends DescriptionView {
         const checkedIndex = this.model.get('index');
         const disabled = this.model.get('disabled');
         const elements = items.map((item, index) => {
-            return h.label([item, h.input({
+            const attr: any = {
                 type: 'radio',
                 value: index.toString(),
                 dataset: {value: encodeURIComponent(item)},
-                checked: checkedIndex === index ? 'true' : undefined,
-                disabled: disabled ? 'true' : undefined
-            })]);
+                // checked: (checkedIndex === index) ? '' : null
+            }
+            if (checkedIndex === index) {
+                attr['checked'] = '';
+            }
+            if (disabled) {
+                attr['disabled'] = '';
+            }
+            console.log(attr);
+            return h.label([item, h.input(attr)]);
         });
-        VirtualDom.render(elements, this.container);
+        console.log(elements);
+        VirtualDOM.render(elements, this.container);
 
 
         // const radios = _.pluck(
@@ -410,6 +418,7 @@ class RadioButtonsView extends DescriptionView {
         const target = event.target as HTMLInputElement;
         this.model.set('index', parseInt(target.value), {updated_view: this});
         this.touch();
+        event.preventDefault();
     }
 
     container: HTMLDivElement;
