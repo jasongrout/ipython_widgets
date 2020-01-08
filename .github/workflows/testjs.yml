@@ -28,6 +28,7 @@ jobs:
       run: |
         yarn install
         yarn run build
+        yarn run build:examples
         yarn run integrity
         
         pushd packages/base
@@ -42,8 +43,9 @@ jobs:
         yarn run test:unit:firefox:headless
         popd
 
-       pushd examples/web1
-       yarn run test:firefox:headless
-       popd
+        pushd examples/web1
+        yarn run test:firefox:headless
+        popd
+
       env:
         CI: true

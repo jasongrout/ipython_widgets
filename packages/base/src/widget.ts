@@ -32,6 +32,7 @@ import {
     KernelMessage
 } from '@jupyterlab/services';
 
+
 /**
  * Replace model ids with models recursively.
  */
@@ -577,7 +578,8 @@ class DOMWidgetModel extends WidgetModel {
 
     defaults() {
         return utils.assign(super.defaults(), {
-            _dom_classes: []
+            _dom_classes: [],
+            tabbable: null
             // We do not declare defaults for the layout and style attributes.
             // Those defaults are constructed on the kernel side and synced here
             // as needed, and our code here copes with those attributes being
@@ -629,8 +631,23 @@ class WidgetView extends NativeView<WidgetModel> {
 
         this.displayed = new Promise((resolve, reject) => {
             this.once('displayed', resolve);
+
+        this.model.on('msg:custom', this.handle_message.bind(this));
         });
     }
+
+    /**
+     * Handle message sent to the front end.
+     *
+     * Used to focus or blur the widget.
+     */
+    handle_message(content: any) {
+        if (content.do == 'focus') {
+	    this.el.focus();
+        } else if (content.do == 'blur') {
+	    this.el.blur();
+	}
+    };
 
     /**
      * Triggered on model change.
@@ -690,6 +707,7 @@ class WidgetView extends NativeView<WidgetModel> {
      * A promise that resolves to the parent view when a child view is displayed.
      */
     displayed: Promise<WidgetView>;
+
 }
 
 export namespace WidgetView {
@@ -699,7 +717,7 @@ export namespace WidgetView {
 }
 
 export
-namespace JupyterPhosphorWidget {
+namespace JupyterLuminoWidget {
     export
     interface IOptions {
         view: DOMWidgetView;
@@ -707,8 +725,8 @@ namespace JupyterPhosphorWidget {
 }
 
 export
-class JupyterPhosphorWidget extends Widget {
-    constructor(options: Widget.IOptions & JupyterPhosphorWidget.IOptions) {
+class JupyterLuminoWidget extends Widget {
+    constructor(options: Widget.IOptions & JupyterLuminoWidget.IOptions) {
         let view = options.view;
         delete options.view;
         super(options);
@@ -732,22 +750,22 @@ class JupyterPhosphorWidget extends Widget {
     }
 
     /**
-     * Process the phosphor message.
+     * Process the Lumino message.
      *
-     * Any custom phosphor widget used inside a Jupyter widget should override
+     * Any custom Lumino widget used inside a Jupyter widget should override
      * the processMessage function like this.
      */
     processMessage(msg: Message) {
         super.processMessage(msg);
-        this._view.processPhosphorMessage(msg);
+        this._view.processLuminoMessage(msg);
     }
 
     private _view: DOMWidgetView;
 }
 
 export
-class JupyterPhosphorPanelWidget extends Panel {
-    constructor(options: JupyterPhosphorWidget.IOptions & Panel.IOptions) {
+class JupyterLuminoPanelWidget extends Panel {
+    constructor(options: JupyterLuminoWidget.IOptions & Panel.IOptions) {
         let view = options.view;
         delete options.view;
         super(options);
@@ -755,14 +773,14 @@ class JupyterPhosphorPanelWidget extends Panel {
     }
 
     /**
-     * Process the phosphor message.
+     * Process the Lumino message.
      *
-     * Any custom phosphor widget used inside a Jupyter widget should override
+     * Any custom Lumino widget used inside a Jupyter widget should override
      * the processMessage function like this.
      */
     processMessage(msg: Message) {
         super.processMessage(msg);
-        this._view.processPhosphorMessage(msg);
+        this._view.processLuminoMessage(msg);
     }
 
     /**
@@ -859,7 +877,7 @@ class DOMWidgetView extends WidgetView {
                     return this.displayed.then(() => {
                         view.trigger('displayed');
                         // Unlike for the layout attribute, style changes don't
-                        // trigger phosphor resize messages.
+                        // trigger Lumino resize messages.
                         return view;
                     });
                 }).catch(utils.reject('Could not add styleView to DOMWidgetView', true));
@@ -936,7 +954,7 @@ class DOMWidgetView extends WidgetView {
 
         this.$el = el instanceof $ ? el : $(el);
         this.el = this.$el[0];
-        this.pWidget = new JupyterPhosphorWidget({
+        this.pWidget = new JupyterLuminoWidget({
             node: el,
             view: this
         });
@@ -949,7 +967,7 @@ class DOMWidgetView extends WidgetView {
         return super.remove();
     }
 
-    processPhosphorMessage(msg: Message) {
+    processLuminoMessage(msg: Message) {
         // tslint:disable-next-line:switch-default
         switch (msg.type) {
         case 'after-attach':
@@ -963,6 +981,17 @@ class DOMWidgetView extends WidgetView {
             this.pWidget.removeClass('jupyter-widgets-disconnected');
         } else {
             this.pWidget.addClass('jupyter-widgets-disconnected');
+        }
+    }
+
+    updateTabindex() {
+        let tabbable = this.model.get('tabbable');
+        if (tabbable === true) {
+            this.el.setAttribute('tabIndex', '0');
+        } else if (tabbable === false) {
+            this.el.setAttribute('tabIndex', '-1');
+        } else if (tabbable === null) {
+            this.el.removeAttribute('tabIndex');
         }
     }
 

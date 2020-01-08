@@ -50,8 +50,6 @@ Attribute        | Type             | Default          | Help
 `object_position` | `null` or string | `null`           | The object-position CSS attribute.
 `order`          | `null` or string | `null`           | The order CSS attribute.
 `overflow`       | `null` or string | `null`           | The overflow CSS attribute.
-`overflow_x`     | `null` or string (one of `'visible'`, `'hidden'`, `'scroll'`, `'auto'`, `'inherit'`, `'initial'`, `'unset'`) | `null`           | The overflow-x CSS attribute (deprecated).
-`overflow_y`     | `null` or string (one of `'visible'`, `'hidden'`, `'scroll'`, `'auto'`, `'inherit'`, `'initial'`, `'unset'`) | `null`           | The overflow-y CSS attribute (deprecated).
 `padding`        | `null` or string | `null`           | The padding CSS attribute.
 `right`          | `null` or string | `null`           | The right CSS attribute.
 `top`            | `null` or string | `null`           | The top CSS attribute.
@@ -74,6 +72,7 @@ Attribute        | Type             | Default          | Help
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
 `selected_index` | `null` or number (integer) | `0`              | The index of the selected page. This is either an integer selecting a particular sub-widget, or None to have no widgets selected.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### AudioModel (@jupyter-widgets/controls, 1.5.0); AudioView (@jupyter-widgets/controls, 1.5.0)
 
@@ -91,6 +90,7 @@ Attribute        | Type             | Default          | Help
 `format`         | string           | `'mp3'`          | The format of the audio.
 `layout`         | reference to Layout widget | reference to new instance | 
 `loop`           | boolean          | `true`           | When true, the audio will start from the beginning after finishing
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | Bytes            | `b''`            | The media data as a byte string.
 
 ### BoundedFloatTextModel (@jupyter-widgets/controls, 1.5.0); FloatTextView (@jupyter-widgets/controls, 1.5.0)
@@ -113,6 +113,7 @@ Attribute        | Type             | Default          | Help
 `min`            | number (float)   | `0.0`            | Min value
 `step`           | `null` or number (float) | `null`           | Minimum step to increment the value
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | Float value
 
 ### BoundedIntTextModel (@jupyter-widgets/controls, 1.5.0); IntTextView (@jupyter-widgets/controls, 1.5.0)
@@ -135,6 +136,7 @@ Attribute        | Type             | Default          | Help
 `min`            | number (integer) | `0`              | Min value
 `step`           | number (integer) | `1`              | Minimum step to increment the value
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (integer) | `0`              | Int value
 
 ### BoxModel (@jupyter-widgets/controls, 1.5.0); BoxView (@jupyter-widgets/controls, 1.5.0)
@@ -151,6 +153,7 @@ Attribute        | Type             | Default          | Help
 `box_style`      | string (one of `'success'`, `'info'`, `'warning'`, `'danger'`, `''`) | `''`             | Use a predefined styling for the box.
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### ButtonModel (@jupyter-widgets/controls, 1.5.0); ButtonView (@jupyter-widgets/controls, 1.5.0)
 
@@ -166,9 +169,10 @@ Attribute        | Type             | Default          | Help
 `button_style`   | string (one of `'primary'`, `'success'`, `'info'`, `'warning'`, `'danger'`, `''`) | `''`             | Use a predefined styling for the button.
 `description`    | string           | `''`             | Button label.
 `disabled`       | boolean          | `false`          | Enable or disable user changes.
-`icon`           | string           | `''`             | Font-awesome icon name, without the 'fa-' prefix.
+`icon`           | string           | `''`             | Font-awesome icon names, without the 'fa-' prefix.
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to ButtonStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `tooltip`        | string           | `''`             | Tooltip caption of the button.
 
 ### ButtonStyleModel (@jupyter-widgets/controls, 1.5.0); StyleView (@jupyter-widgets/base, 1.2.0)
@@ -201,6 +205,7 @@ Attribute        | Type             | Default          | Help
 `indent`         | boolean          | `true`           | Indent the control to align with other controls with a description.
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | boolean          | `false`          | Bool value
 
 ### ColorPickerModel (@jupyter-widgets/controls, 1.5.0); ColorPickerView (@jupyter-widgets/controls, 1.5.0)
@@ -220,6 +225,7 @@ Attribute        | Type             | Default          | Help
 `disabled`       | boolean          | `false`          | Enable or disable user changes.
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `'black'`        | The color value.
 
 ### ComboboxModel (@jupyter-widgets/controls, 1.5.0); ComboboxView (@jupyter-widgets/controls, 1.5.0)
@@ -242,6 +248,7 @@ Attribute        | Type             | Default          | Help
 `options`        | array of string  | `[]`             | Dropdown options for the combobox
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### ControllerAxisModel (@jupyter-widgets/controls, 1.5.0); ControllerAxisView (@jupyter-widgets/controls, 1.5.0)
@@ -256,6 +263,7 @@ Attribute        | Type             | Default          | Help
 `_view_module_version` | string           | `'1.5.0'`        | 
 `_view_name`     | string           | `'ControllerAxisView'` | 
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | The value of the axis.
 
 ### ControllerButtonModel (@jupyter-widgets/controls, 1.5.0); ControllerButtonView (@jupyter-widgets/controls, 1.5.0)
@@ -271,6 +279,7 @@ Attribute        | Type             | Default          | Help
 `_view_name`     | string           | `'ControllerButtonView'` | 
 `layout`         | reference to Layout widget | reference to new instance | 
 `pressed`        | boolean          | `false`          | Whether the button is pressed.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | The value of the button.
 
 ### ControllerModel (@jupyter-widgets/controls, 1.5.0); ControllerView (@jupyter-widgets/controls, 1.5.0)
@@ -291,6 +300,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `mapping`        | string           | `''`             | The name of the control mapping.
 `name`           | string           | `''`             | The name of the controller.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `timestamp`      | number (float)   | `0.0`            | The last time the data from this gamepad was updated.
 
 ### DOMWidgetModel (@jupyter-widgets/controls, 1.5.0); None (@jupyter-widgets/controls, 1.5.0)
@@ -305,6 +315,7 @@ Attribute        | Type             | Default          | Help
 `_view_module_version` | string           | `'1.5.0'`        | 
 `_view_name`     | `null` or string | `null`           | Name of the view.
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | Bytes            | `b''`            | The media data as a byte string.
 
 ### DatePickerModel (@jupyter-widgets/controls, 1.5.0); DatePickerView (@jupyter-widgets/controls, 1.5.0)
@@ -323,6 +334,7 @@ Attribute        | Type             | Default          | Help
 `disabled`       | boolean          | `false`          | Enable or disable user changes.
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | `null` or Date   | `null`           | 
 
 ### DescriptionStyleModel (@jupyter-widgets/controls, 1.5.0); StyleView (@jupyter-widgets/base, 1.2.0)
@@ -368,6 +380,7 @@ Attribute        | Type             | Default          | Help
 `index`          | `null` or number (integer) | `null`           | Selected index
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### FileUploadModel (@jupyter-widgets/controls, 1.5.0); FileUploadView (@jupyter-widgets/controls, 1.5.0)
 
@@ -393,6 +406,7 @@ Attribute        | Type             | Default          | Help
 `metadata`       | array            | `[]`             | List of file metadata
 `multiple`       | boolean          | `false`          | If True, allow for multiple files upload
 `style`          | reference to ButtonStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### FloatLogSliderModel (@jupyter-widgets/controls, 1.5.0); FloatLogSliderView (@jupyter-widgets/controls, 1.5.0)
 
@@ -418,6 +432,7 @@ Attribute        | Type             | Default          | Help
 `readout_format` | string           | `'.3g'`          | Format for the readout
 `step`           | number (float)   | `0.1`            | Minimum step in the exponent to increment the value
 `style`          | reference to SliderStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `1.0`            | Float value
 
 ### FloatProgressModel (@jupyter-widgets/controls, 1.5.0); ProgressView (@jupyter-widgets/controls, 1.5.0)
@@ -439,6 +454,7 @@ Attribute        | Type             | Default          | Help
 `min`            | number (float)   | `0.0`            | Min value
 `orientation`    | string (one of `'horizontal'`, `'vertical'`) | `'horizontal'`   | Vertical or horizontal.
 `style`          | reference to ProgressStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | Float value
 
 ### FloatRangeSliderModel (@jupyter-widgets/controls, 1.5.0); FloatRangeSliderView (@jupyter-widgets/controls, 1.5.0)
@@ -464,6 +480,7 @@ Attribute        | Type             | Default          | Help
 `readout_format` | string           | `'.2f'`          | Format for the readout
 `step`           | number (float)   | `0.1`            | Minimum step to increment the value
 `style`          | reference to SliderStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | array            | `[0.0, 1.0]`     | Tuple of (lower, upper) bounds
 
 ### FloatSliderModel (@jupyter-widgets/controls, 1.5.0); FloatSliderView (@jupyter-widgets/controls, 1.5.0)
@@ -489,6 +506,7 @@ Attribute        | Type             | Default          | Help
 `readout_format` | string           | `'.2f'`          | Format for the readout
 `step`           | number (float)   | `0.1`            | Minimum step to increment the value
 `style`          | reference to SliderStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | Float value
 
 ### FloatTextModel (@jupyter-widgets/controls, 1.5.0); FloatTextView (@jupyter-widgets/controls, 1.5.0)
@@ -509,6 +527,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `step`           | `null` or number (float) | `null`           | Minimum step to increment the value
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (float)   | `0.0`            | Float value
 
 ### GridBoxModel (@jupyter-widgets/controls, 1.5.0); GridBoxView (@jupyter-widgets/controls, 1.5.0)
@@ -525,6 +544,7 @@ Attribute        | Type             | Default          | Help
 `box_style`      | string (one of `'success'`, `'info'`, `'warning'`, `'danger'`, `''`) | `''`             | Use a predefined styling for the box.
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### HBoxModel (@jupyter-widgets/controls, 1.5.0); HBoxView (@jupyter-widgets/controls, 1.5.0)
 
@@ -540,6 +560,7 @@ Attribute        | Type             | Default          | Help
 `box_style`      | string (one of `'success'`, `'info'`, `'warning'`, `'danger'`, `''`) | `''`             | Use a predefined styling for the box.
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### HTMLMathModel (@jupyter-widgets/controls, 1.5.0); HTMLMathView (@jupyter-widgets/controls, 1.5.0)
 
@@ -557,6 +578,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### HTMLModel (@jupyter-widgets/controls, 1.5.0); HTMLView (@jupyter-widgets/controls, 1.5.0)
@@ -575,6 +597,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### ImageModel (@jupyter-widgets/controls, 1.5.0); ImageView (@jupyter-widgets/controls, 1.5.0)
@@ -591,6 +614,7 @@ Attribute        | Type             | Default          | Help
 `format`         | string           | `'png'`          | The format of the image.
 `height`         | string           | `''`             | Height of the image in pixels. Use layout.height for styling the widget.
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | Bytes            | `b''`            | The media data as a byte string.
 `width`          | string           | `''`             | Width of the image in pixels. Use layout.width for styling the widget.
 
@@ -613,6 +637,7 @@ Attribute        | Type             | Default          | Help
 `min`            | number (integer) | `0`              | Min value
 `orientation`    | string (one of `'horizontal'`, `'vertical'`) | `'horizontal'`   | Vertical or horizontal.
 `style`          | reference to ProgressStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (integer) | `0`              | Int value
 
 ### IntRangeSliderModel (@jupyter-widgets/controls, 1.5.0); IntRangeSliderView (@jupyter-widgets/controls, 1.5.0)
@@ -638,6 +663,7 @@ Attribute        | Type             | Default          | Help
 `readout_format` | string           | `'d'`            | Format for the readout
 `step`           | number (integer) | `1`              | Minimum step that the value can take
 `style`          | reference to SliderStyle widget | reference to new instance | Slider style customizations.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | array            | `[0, 1]`         | Tuple of (lower, upper) bounds
 
 ### IntSliderModel (@jupyter-widgets/controls, 1.5.0); IntSliderView (@jupyter-widgets/controls, 1.5.0)
@@ -663,6 +689,7 @@ Attribute        | Type             | Default          | Help
 `readout_format` | string           | `'d'`            | Format for the readout
 `step`           | number (integer) | `1`              | Minimum step to increment the value
 `style`          | reference to SliderStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (integer) | `0`              | Int value
 
 ### IntTextModel (@jupyter-widgets/controls, 1.5.0); IntTextView (@jupyter-widgets/controls, 1.5.0)
@@ -683,6 +710,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `step`           | number (integer) | `1`              | Minimum step to increment the value
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (integer) | `0`              | Int value
 
 ### LabelModel (@jupyter-widgets/controls, 1.5.0); LabelView (@jupyter-widgets/controls, 1.5.0)
@@ -701,6 +729,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### LinkModel (@jupyter-widgets/controls, 1.5.0); None (@jupyter-widgets/controls, 1.5.0)
@@ -734,6 +763,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### PlayModel (@jupyter-widgets/controls, 1.5.0); PlayView (@jupyter-widgets/controls, 1.5.0)
@@ -752,13 +782,14 @@ Attribute        | Type             | Default          | Help
 `description`    | string           | `''`             | Description of the control.
 `description_tooltip` | `null` or string | `null`           | Tooltip for the description (defaults to description).
 `disabled`       | boolean          | `false`          | Enable or disable user changes
-`interval`       | number (integer) | `100`            | The maximum value for the play control.
+`interval`       | number (integer) | `100`            | The time between two animation steps (ms).
 `layout`         | reference to Layout widget | reference to new instance | 
 `max`            | number (integer) | `100`            | Max value
 `min`            | number (integer) | `0`              | Min value
 `show_repeat`    | boolean          | `true`           | Show the repeat toggle button in the widget.
 `step`           | number (integer) | `1`              | Increment step
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | number (integer) | `0`              | Int value
 
 ### ProgressStyleModel (@jupyter-widgets/controls, 1.5.0); StyleView (@jupyter-widgets/base, 1.2.0)
@@ -792,6 +823,7 @@ Attribute        | Type             | Default          | Help
 `index`          | `null` or number (integer) | `null`           | Selected index
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### SelectModel (@jupyter-widgets/controls, 1.5.0); SelectView (@jupyter-widgets/controls, 1.5.0)
 
@@ -812,6 +844,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `rows`           | number (integer) | `5`              | The number of rows to display.
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### SelectMultipleModel (@jupyter-widgets/controls, 1.5.0); SelectMultipleView (@jupyter-widgets/controls, 1.5.0)
 
@@ -832,6 +865,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `rows`           | number (integer) | `5`              | The number of rows to display.
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### SelectionRangeSliderModel (@jupyter-widgets/controls, 1.5.0); SelectionRangeSliderView (@jupyter-widgets/controls, 1.5.0)
 
@@ -854,6 +888,7 @@ Attribute        | Type             | Default          | Help
 `orientation`    | string (one of `'horizontal'`, `'vertical'`) | `'horizontal'`   | Vertical or horizontal.
 `readout`        | boolean          | `true`           | Display the current selected label next to the slider
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### SelectionSliderModel (@jupyter-widgets/controls, 1.5.0); SelectionSliderView (@jupyter-widgets/controls, 1.5.0)
 
@@ -876,6 +911,7 @@ Attribute        | Type             | Default          | Help
 `orientation`    | string (one of `'horizontal'`, `'vertical'`) | `'horizontal'`   | Vertical or horizontal.
 `readout`        | boolean          | `true`           | Display the current selected label next to the slider
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### SliderStyleModel (@jupyter-widgets/controls, 1.5.0); StyleView (@jupyter-widgets/base, 1.2.0)
 
@@ -906,6 +942,7 @@ Attribute        | Type             | Default          | Help
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
 `selected_index` | `null` or number (integer) | `0`              | The index of the selected page. This is either an integer selecting a particular sub-widget, or None to have no widgets selected.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### TextModel (@jupyter-widgets/controls, 1.5.0); TextView (@jupyter-widgets/controls, 1.5.0)
 
@@ -925,6 +962,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### TextareaModel (@jupyter-widgets/controls, 1.5.0); TextareaView (@jupyter-widgets/controls, 1.5.0)
@@ -946,6 +984,7 @@ Attribute        | Type             | Default          | Help
 `placeholder`    | string           | `'\u200b'`       | Placeholder text to display when nothing has been typed
 `rows`           | `null` or number (integer) | `null`           | The number of rows to display.
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | string           | `''`             | String value
 
 ### ToggleButtonModel (@jupyter-widgets/controls, 1.5.0); ToggleButtonView (@jupyter-widgets/controls, 1.5.0)
@@ -966,6 +1005,7 @@ Attribute        | Type             | Default          | Help
 `icon`           | string           | `''`             | Font-awesome icon.
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `tooltip`        | string           | `''`             | Tooltip caption of the toggle button.
 `value`          | boolean          | `false`          | Bool value
 
@@ -989,6 +1029,7 @@ Attribute        | Type             | Default          | Help
 `index`          | `null` or number (integer) | `null`           | Selected index
 `layout`         | reference to Layout widget | reference to new instance | 
 `style`          | reference to ToggleButtonsStyle widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `tooltips`       | array of string  | `[]`             | Tooltips for each button.
 
 ### ToggleButtonsStyleModel (@jupyter-widgets/controls, 1.5.0); StyleView (@jupyter-widgets/base, 1.2.0)
@@ -1019,6 +1060,7 @@ Attribute        | Type             | Default          | Help
 `box_style`      | string (one of `'success'`, `'info'`, `'warning'`, `'danger'`, `''`) | `''`             | Use a predefined styling for the box.
 `children`       | array of reference to Widget widget | `[]`             | List of widget children
 `layout`         | reference to Layout widget | reference to new instance | 
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 
 ### ValidModel (@jupyter-widgets/controls, 1.5.0); ValidView (@jupyter-widgets/controls, 1.5.0)
 
@@ -1037,6 +1079,7 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `readout`        | string           | `'Invalid'`      | Message displayed when the value is False
 `style`          | reference to DescriptionStyle widget | reference to new instance | Styling customizations
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | boolean          | `false`          | Bool value
 
 ### VideoModel (@jupyter-widgets/controls, 1.5.0); VideoView (@jupyter-widgets/controls, 1.5.0)
@@ -1056,6 +1099,7 @@ Attribute        | Type             | Default          | Help
 `height`         | string           | `''`             | Height of the video in pixels.
 `layout`         | reference to Layout widget | reference to new instance | 
 `loop`           | boolean          | `true`           | When true, the video will start from the beginning after finishing
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 `value`          | Bytes            | `b''`            | The media data as a byte string.
 `width`          | string           | `''`             | Width of the video in pixels.
 
@@ -1073,4 +1117,5 @@ Attribute        | Type             | Default          | Help
 `layout`         | reference to Layout widget | reference to new instance | 
 `msg_id`         | string           | `''`             | Parent message id of messages to capture
 `outputs`        | array of object  | `[]`             | The output messages synced from the frontend.
+`tabbable`       | `null` or boolean | `null`           | Is widget tabbable?
 

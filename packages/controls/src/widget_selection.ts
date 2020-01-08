@@ -30,6 +30,52 @@ class SelectionModel extends CoreDescriptionModel {
 }
 
 export
+class SelectionView extends DescriptionView {
+    /**
+     * Called when view is rendered.
+     */
+    render() {
+        super.render(); // Incl. setting some defaults.
+        this.el.classList.add('jupyter-widgets');
+        this.el.classList.add('widget-inline-hbox');
+    }
+
+    /**
+     * Update the contents of this view
+     *
+     * Called when the model is changed.  The model may have been
+     * changed by another view or by a state update from the back-end.
+     */
+    update() {
+        super.update();
+
+        // Disable listbox if needed
+        if (this.listbox) {
+            this.listbox.disabled = this.model.get('disabled');
+        }
+
+        // Set tabindex
+        this.updateTabindex();
+    }
+
+    updateTabindex() {
+        if (!this.listbox) {
+            return; // we might be constructing the parent
+        }
+        let tabbable = this.model.get('tabbable');
+        if (tabbable === true) {
+            this.listbox.setAttribute('tabIndex', '0');
+        } else if (tabbable === false) {
+            this.listbox.setAttribute('tabIndex', '-1');
+        } else if (tabbable === null) {
+            this.listbox.removeAttribute('tabIndex');
+        }
+    }
+
+    listbox: HTMLSelectElement;
+}
+
+export
 class DropdownModel extends SelectionModel {
     defaults() {
         return {...super.defaults(),
@@ -40,7 +86,7 @@ class DropdownModel extends SelectionModel {
     }
 }
 
-// TODO: Make a phosphor dropdown control, wrapped in DropdownView. Also, fix
+// TODO: Make a Lumino dropdown control, wrapped in DropdownView. Also, fix
 // bugs in keyboard handling. See
 // https://github.com/jupyter-widgets/ipywidgets/issues/1055 and
 // https://github.com/jupyter-widgets/ipywidgets/issues/1049
@@ -48,7 +94,7 @@ class DropdownModel extends SelectionModel {
 // For the old code, see commit f68bfbc566f3a78a8f3350b438db8ed523ce3642
 
 export
-class DropdownView extends DescriptionView {
+class DropdownView extends SelectionView {
     /**
      * Public constructor.
      */
@@ -63,8 +109,6 @@ class DropdownView extends DescriptionView {
     render() {
         super.render();
 
-        this.el.classList.add('jupyter-widgets');
-        this.el.classList.add('widget-inline-hbox');
         this.el.classList.add('widget-dropdown');
 
         this.listbox = document.createElement('select');
@@ -78,9 +122,6 @@ class DropdownView extends DescriptionView {
      * Update the contents of this view
      */
     update() {
-        // Disable listbox if needed
-        this.listbox.disabled = this.model.get('disabled');
-
         // Select the correct element
         let index = this.model.get('index');
         this.listbox.selectedIndex = index === null ? -1 : index;
@@ -114,7 +155,16 @@ class DropdownView extends DescriptionView {
         this.touch();
     }
 
-    listbox: HTMLSelectElement;
+    /**
+     * Handle message sent to the front end.
+     */
+    handle_message(content: any) {
+        if (content.do == 'focus') {
+            this.listbox.focus();
+        } else if (content.do == 'blur') {
+            this.listbox.blur();
+        }
+    };
 }
 
 
@@ -131,7 +181,7 @@ class SelectModel extends SelectionModel {
 }
 
 export
-class SelectView extends DescriptionView {
+class SelectView extends SelectionView {
     /**
      * Public constructor.
      */
@@ -148,9 +198,6 @@ class SelectView extends DescriptionView {
      */
     render() {
         super.render();
-
-        this.el.classList.add('jupyter-widgets');
-        this.el.classList.add('widget-inline-hbox');
         this.el.classList.add('widget-select');
 
         this.listbox.id = this.label.htmlFor = uuid();
@@ -165,7 +212,6 @@ class SelectView extends DescriptionView {
      */
     update() {
         super.update();
-        this.listbox.disabled = this.model.get('disabled');
         let rows = this.model.get('rows');
         if (rows === null) {
             rows = '';
@@ -208,7 +254,16 @@ class SelectView extends DescriptionView {
         this.touch();
     }
 
-    listbox: HTMLSelectElement;
+    /**
+     * Handle message sent to the front end.
+     */
+    handle_message(content: any) {
+        if (content.do == 'focus') {
+            this.listbox.focus();
+        } else if (content.do == 'blur') {
+            this.listbox.blur();
+        }
+    };
 }
 
 export
@@ -233,8 +288,6 @@ class RadioButtonsView extends DescriptionView {
     render() {
         super.render();
 
-        this.el.classList.add('jupyter-widgets');
-        this.el.classList.add('widget-inline-hbox');
         this.el.classList.add('widget-radio');
 
         this.container = document.createElement('div');
@@ -350,6 +403,21 @@ class RadioButtonsView extends DescriptionView {
         this.touch();
     }
 
+    /**
+     * Handle message sent to the front end.
+     */
+    handle_message(content: any) {
+        if (content.do == 'focus') {
+            const firstItem = this.container.firstElementChild as HTMLElement;
+            firstItem.focus();
+        } else if (content.do == 'blur') {
+            for (let i = 0; i < this.container.children.length; i++) {
+                const item = this.container.children[i] as HTMLElement;
+                item.blur();
+            }
+        }
+    }
+
     container: HTMLDivElement;
 }
 
@@ -401,8 +469,6 @@ class ToggleButtonsView extends DescriptionView {
     render() {
         super.render();
 
-        this.el.classList.add('jupyter-widgets');
-        this.el.classList.add('widget-inline-hbox');
         this.el.classList.add('widget-toggle-buttons');
 
         this.buttongroup = document.createElement('div');
@@ -586,8 +652,6 @@ class SelectionSliderView extends DescriptionView {
     render () {
         super.render();
 
-        this.el.classList.add('jupyter-widgets');
-        this.el.classList.add('widget-inline-hbox');
         this.el.classList.add('widget-hslider');
         this.el.classList.add('widget-slider');
 
