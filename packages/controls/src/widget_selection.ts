@@ -9,13 +9,15 @@ import {
     DescriptionView, DescriptionStyleModel
 } from './widget_description';
 
-import {
-    h, VirtualDOM
-} from '@lumino/virtualdom';
+// import {
+//     h, VirtualDOM
+// } from '@lumino/virtualdom';
 
 import {
     uuid
 } from './utils';
+
+import m from 'mithril';
 
 import * as _ from 'underscore';
 import * as utils from './utils';
@@ -306,9 +308,9 @@ class RadioButtonsView extends DescriptionView {
         const elements = items.map((item, index) => {
             const attr: any = {
                 type: 'radio',
+                name: this.cid,
                 value: index.toString(),
-                dataset: {value: encodeURIComponent(item)},
-                // checked: (checkedIndex === index) ? '' : null
+                // dataset: {value: encodeURIComponent(item)},
             }
             if (checkedIndex === index) {
                 attr['checked'] = '';
@@ -316,53 +318,12 @@ class RadioButtonsView extends DescriptionView {
             if (disabled) {
                 attr['disabled'] = '';
             }
-            console.log(attr);
-            return h.label([item, h.input(attr)]);
+            return m('label', [item, m('input', attr)])
+            // console.log(attr);
+            // return h.label([item, h.input(attr)]);
         });
-        console.log(elements);
-        VirtualDOM.render(elements, this.container);
-
-
-        // const radios = _.pluck(
-        //     this.container.querySelectorAll('input[type="radio"]'),
-        //     'value'
-        // );
-        // let stale = items.length != radios.length;
-
-        // if (!stale) {
-        //     for (let i = 0, len = items.length; i < len; ++i) {
-        //         if (radios[i] !== items[i]) {
-        //             stale = true;
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // if (stale && (options === undefined || options.updated_view !== this)) {
-        //     // Add items to the DOM.
-        //     this.container.textContent = '';
-        //     items.forEach((item: any, index: number) => {
-        //         const label = document.createElement('label');
-        //         label.textContent = item;
-        //         this.container.appendChild(label);
-
-        //         const radio = document.createElement('input');
-        //         radio.setAttribute('type', 'radio');
-        //         radio.value = index.toString();
-        //         radio.setAttribute('data-value', encodeURIComponent(item));
-        //         label.appendChild(radio);
-        //    });
-        // }
-        // items.forEach((item: any, index: number) => {
-        //     const item_query = 'input[data-value="' +
-        //         encodeURIComponent(item) + '"]';
-        //         const radio = this.container.querySelectorAll(item_query);
-        //     if (radio.length > 0) {
-        //       const radio_el = radio[0] as HTMLInputElement;
-        //       radio_el.checked = this.model.get('index') === index;
-        //       radio_el.disabled = this.model.get('disabled');
-        //     }
-        // });
+        m.render(this.container, elements);
+        // VirtualDOM.render(elements, this.container);
 
         // Schedule adjustPadding asynchronously to
         // allow dom elements to be created properly
@@ -416,9 +377,9 @@ class RadioButtonsView extends DescriptionView {
      */
     _handle_click (event: Event): void {
         const target = event.target as HTMLInputElement;
+        // target.checked = null;
         this.model.set('index', parseInt(target.value), {updated_view: this});
         this.touch();
-        event.preventDefault();
     }
 
     container: HTMLDivElement;
