@@ -166,6 +166,8 @@ class WidgetModel extends Backbone.Model {
         // call above. See the note in the set() method below.
         this._buffered_state_diff = {};
 
+        this.store.addConnectedChangeListener(this._commUpdate, this);
+
         if (comm) {
             // Remember comm associated with the model.
             this.comm = comm;
@@ -173,19 +175,15 @@ class WidgetModel extends Backbone.Model {
             // Hook comm messages up to model.
             comm.on_close(this._handle_comm_closed.bind(this));
             comm.on_msg(this._handle_comm_msg.bind(this));
-
-            this.comm_live = true;
-        } else {
-            this.comm_live = false;
         }
     }
 
-    get comm_live(): boolean {
-        return this._comm_live;
-    }
-    set comm_live(x) {
-        this._comm_live = x;
+    private _commUpdate(): void {
         this.trigger('comm_live_update');
+    }
+
+    get comm_live(): boolean {
+        return this.store.connected;
     }
 
     /**
@@ -214,6 +212,7 @@ class WidgetModel extends Backbone.Model {
         if (this.comm && !comm_closed) {
             this.comm.close();
         }
+        this.store.removeConnectedChangeListener(this._commUpdate, this);
         this.stopListening();
         this.trigger('destroy', this);
         if (this.comm) {
@@ -519,14 +518,15 @@ class WidgetModel extends Backbone.Model {
      * This invokes a Backbone.Sync.
      */
     save_changes(callbacks?: {}): void {
-        if (this.comm_live) {
+        // TODO: always save to datastore. The datastore handles syncing to the server/kernel.
+        // if (this.comm_live) {
             const options: any = {patch: true};
             if (callbacks) {
                 options.callbacks = callbacks;
             }
             this.save(this._buffered_state_diff, options);
             this._buffered_state_diff = {};
-        }
+        // }
     }
 
     /**
@@ -597,7 +597,6 @@ class WidgetModel extends Backbone.Model {
     name: string;
     module: string;
 
-    private _comm_live: boolean;
     private _closed: boolean;
     private _state_lock: any;
     private _buffered_state_diff: any;
