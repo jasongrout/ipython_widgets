@@ -5,6 +5,10 @@ import {
   ICallbacks
 } from './services-shim';
 
+import {
+  IDisposable
+} from '@lumino/disposable';
+
 export
 interface ISetOptions {
     callbacks: ICallbacks;
@@ -42,7 +46,7 @@ type WidgetManagerStore = {
  * 
  */
 export
-interface IDataStore<STATE> {
+interface IDataStore<STATE> extends IDisposable {
     get<T extends keyof STATE>(k: T): STATE[T];
 
 
@@ -68,6 +72,8 @@ interface IDataStore<STATE> {
     addConnectedChangeListener(f: EventListener<STATE, Partial<STATE>>, thisContext?: any): void;
     removeConnectedChangeListener(f: EventListener<STATE, Partial<STATE>>, thisContext?: any): void;
 
+    
+
     /**
      * We can no longer send messages directly. In order to support messages
      * and batch syncing, we really should support a queue field, where, say,
@@ -85,7 +91,7 @@ interface IDataStore<STATE> {
      * - lightweight mouse/focus events (ipyevent)
      * - RPC from kernel to js
      */
-    send(): void;
+    send(content: {}, callbacks: {}, buffers?: ArrayBuffer[] | ArrayBufferView[]): void;
 
     // On receiving a custom message, trigger a backbone event?
 
