@@ -85,12 +85,11 @@ function unpack_models(
 /**
  * Type declaration for general widget serializers.
  */
-export
-interface ISerializers {
-    [key: string]: {
-        deserialize?: (value?: any, manager?: IWidgetManager) => any;
-        serialize?: (value?: any, widget?: WidgetModel) => any;
-    };
+export type ISerializers<STATE, OBJSTATE> = {
+    [K in keyof (STATE | OBJSTATE)]?: {
+        deserialize?: (value: STATE[K], manager?: IWidgetManager) => OBJSTATE[K];
+        serialize?: (value: OBJSTATE[K], widget?: WidgetModel) => STATE[K];
+    }
 }
 
 
@@ -102,7 +101,7 @@ interface ISerializers {
  * todo: abstract out comms to the data store, so the widget has some idea of connection status with the data store. also, the data store needs a way to send one-off custom messages, not just sync state.
  */
 export
-class WidgetModel extends Backbone.Model {
+class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any> extends Backbone.Model {
 
     /**
      * The default attributes.
@@ -167,6 +166,9 @@ class WidgetModel extends Backbone.Model {
         this._buffered_state_diff = {};
 
         this.store.addConnectedChangeListener(this._commUpdate, this);
+        // this.store.addStateChangeListener(this._handleStateChange, this);
+        // TODO: handle store disposable, same as comm close
+        // TODO: handle custom messages from the store
 
         if (comm) {
             // Remember comm associated with the model.
@@ -177,6 +179,7 @@ class WidgetModel extends Backbone.Model {
             comm.on_msg(this._handle_comm_msg.bind(this));
         }
     }
+
 
     private _commUpdate(): void {
         this.trigger('comm_live_update');
@@ -190,10 +193,11 @@ class WidgetModel extends Backbone.Model {
      * Send a custom msg over the comm.
      */
     send(content: {}, callbacks: {}, buffers?: ArrayBuffer[] | ArrayBufferView[]): void {
-        if (this.comm !== undefined) {
-            const data = {method: 'custom', content: content};
-            this.comm.send(data, callbacks, {}, buffers);
-        }
+        this.store.send(content, callbacks, buffers);
+        // if (this.comm !== undefined) {
+        //     const data = {method: 'custom', content: content};
+        //     this.comm.send(data, callbacks, {}, buffers);
+        // }
     }
 
     /**
@@ -234,6 +238,13 @@ class WidgetModel extends Backbone.Model {
         this.close(true);
     }
 
+    private _handleStateChange(state: Partial<STATE>): void {
+        this.state_change = this.state_change.then(() => {
+            return WidgetModel.deserialize_state(state, this.widget_manager);
+        }).then((state) => {
+            this.set_state(state);
+        }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
+    }
     /**
      * Handle incoming comm msg.
      */
@@ -256,7 +267,7 @@ class WidgetModel extends Backbone.Model {
                         });
 
                         utils.put_buffers(state, buffer_paths, buffers);
-                        return (this.constructor as typeof WidgetModel)._deserialize_state(state, this.widget_manager);
+                        return WidgetModel.deserialize_state(state, this.widget_manager);
                     }).then((state) => {
                         this.set_state(state);
                     }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
@@ -464,25 +475,8 @@ class WidgetModel extends Backbone.Model {
      * primitive object that is a snapshot of the widget state that may have
      * binary array buffers.
      */
-    serialize(state: Dict<any>): JSONObject {
-        const serializers = (this.constructor as typeof WidgetModel).serializers || {};
-        for (const k of Object.keys(state)) {
-            try {
-                if (serializers[k] && serializers[k].serialize) {
-                    state[k] = (serializers[k].serialize!)(state[k], this);
-                } else {
-                    // the default serializer just deep-copies the object
-                    state[k] = JSON.parse(JSON.stringify(state[k]));
-                }
-                if (state[k] && state[k].toJSON) {
-                    state[k] = state[k].toJSON();
-                }
-            } catch (e) {
-                console.error('Error serializing widget state attribute: ', k);
-                throw e;
-            }
-        }
-        return state;
+    serialize(state: Partial<OBJSTATE>): Partial<STATE> {
+        return WidgetModel.serialize_state<OBJSTATE, STATE>(state, this, WidgetModel.serializers);
     }
 
     /**
@@ -551,39 +545,16 @@ class WidgetModel extends Backbone.Model {
     toJSON(options?: {}): string {
         return `IPY_MODEL_${this.model_id}`;
     }
+    
 
     /**
-     * Returns a promise for the deserialized state. The second argument
-     * is an instance of widget manager, which is required for the
-     * deserialization of widget models.
+     * The data store for this widget.
      */
-    static _deserialize_state(state: JSONObject, manager: IWidgetManager): Promise<utils.Dict<unknown>>  {
-        const serializers = this.serializers;
-        let deserialized: Dict<any>;
-        if (serializers) {
-            deserialized = {};
-            for (const k in state) {
-                if (serializers[k] && serializers[k].deserialize) {
-                     deserialized[k] = (serializers[k].deserialize!)(state[k], manager);
-                } else {
-                     deserialized[k] = state[k];
-                }
-            }
-        } else {
-            deserialized = state;
-        }
-        return utils.resolvePromisesDict(deserialized);
-    }
-
-    /**
-     * Override this to return managerBase.IDataStore<MYSTATE> for type checking.
-     */
-    get store(): IDataStore<any> {
+    get store(): IDataStore<STATE> {
         return this.widget_manager.store;
     }
 
-    static serializers: ISerializers;
-
+    static serializers: ISerializers<any, any>;
 
     // Backbone calls the overridden initialization function from the
     // constructor. We initialize the default values above in the initialization
@@ -607,7 +578,7 @@ class WidgetModel extends Backbone.Model {
 
 export
 class DOMWidgetModel extends WidgetModel {
-    static serializers: ISerializers = {
+    static serializers: ISerializers<any, any> = {
         ...WidgetModel.serializers,
         layout: {deserialize: unpack_models},
         style: {deserialize: unpack_models},
@@ -628,6 +599,58 @@ class DOMWidgetModel extends WidgetModel {
     }
 }
 
+
+
+export namespace WidgetModel {
+    /**
+     * Returns a promise for the deserialized state. The second argument
+     * is an instance of widget manager, which is required for the
+     * deserialization of widget models.
+     */
+    // eslint-disable-next-line
+    export function deserialize_state<STATE, OBJSTATE extends {[P in keyof STATE]: any}>(state: Partial<STATE>, manager: IWidgetManager, serializers: ISerializers<STATE, OBJSTATE> = {}): Promise<utils.Unpromisify<Partial<OBJSTATE>>>  {
+        const deserialized: Partial<OBJSTATE> = {};
+        for (const k in state) {
+            const deserialize = serializers[k]?.deserialize;
+            if (deserialize) {
+                    deserialized[k] = deserialize(state[k]!, manager);
+            } else {
+                    // the default deserializer is essentially the identity function
+                    deserialized[k] = state[k] as OBJSTATE[typeof k];
+            }
+        }
+        return utils.resolvePromisesDict(deserialized);
+    }
+
+    /**
+     * Returns a promise for the deserialized state. The second argument
+     * is an instance of widget manager, which is required for the
+     * deserialization of widget models.
+     */
+    // eslint-disable-next-line
+    export function serialize_state<OBJSTATE, STATE extends {[P in keyof STATE]: any}>(state: Partial<OBJSTATE>, widget: WidgetModel, serializers: ISerializers<STATE, OBJSTATE> = {}): Partial<STATE>  {
+        const serialized: Partial<STATE> = {};
+        for (const k in state) {
+            try {
+                const serialize = serializers[k]?.serialize;
+                if (serialize) {
+                        serialized[k] = serialize(state[k]!, widget);
+                } else {
+                        // the default serializer just deep-copies the object
+                        serialized[k] = JSON.parse(JSON.stringify(state[k]));
+                }
+                const value = serialized[k];
+                if (value && value.toJSON) {
+                    serialized[k] = value.toJSON();
+                }
+            } catch (e) {
+                console.error('Error serializing widget state attribute: ', k);
+                throw e;
+            }
+        }
+        return serialized;
+    }
+}
 
 export
 class WidgetView extends NativeView<WidgetModel> {
