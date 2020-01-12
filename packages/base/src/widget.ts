@@ -121,7 +121,7 @@ export interface IWidgetModelState {
  * todo: abstract out comms to the data store, so the widget has some idea of connection status with the data store. also, the data store needs a way to send one-off custom messages, not just sync state.
  */
 export
-class WidgetModel<STATE = IWidgetModelState, OBJSTATE = IWidgetModelState> extends Backbone.Model {
+class WidgetModel<STATE extends IWidgetModelState = IWidgetModelState, OBJSTATE extends IWidgetModelState = IWidgetModelState> extends Backbone.Model {
 
     /**
      * The default attributes.
@@ -258,13 +258,13 @@ class WidgetModel<STATE = IWidgetModelState, OBJSTATE = IWidgetModelState> exten
         this.close(true);
     }
 
-    private _handleStateChange(state: Partial<STATE>): void {
-        this.state_change = this.state_change.then(() => {
-            return WidgetSerializing.deserialize_state(state, this.widget_manager);
-        }).then((state) => {
-            this.set_state(state);
-        }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
-    }
+    // private _handleStateChange(state: Partial<STATE>): void {
+    //     this.state_change = this.state_change.then(() => {
+    //         return WidgetSerializing.deserialize_state(state, this.widget_manager);
+    //     }).then((state) => {
+    //         this.set_state(state);
+    //     }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
+    // }
     /**
      * Handle incoming comm msg.
      */
