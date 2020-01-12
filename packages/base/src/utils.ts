@@ -58,7 +58,11 @@ export
 type Dict<T> = { [keys: string]: T };
 
 export type Unpromisify<T> = {
-    [K in keyof T]: T[K] extends PromiseLike<infer U> ? U : T[K]
+    [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K]
+};
+
+export type Promisify<T> = {
+    [K in keyof T]: Promise<T[K]> | T[K]
 };
 
 /**

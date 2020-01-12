@@ -54,6 +54,17 @@ import {
 import { IDataStore } from './datastore';
 
 /**
+ * Replace a single model id with the model
+ */
+export
+async function unpack_model<T extends WidgetModel = WidgetModel>(value: string | undefined, manager: IWidgetManager): Promise<T | undefined> {
+    if (typeof value === 'string' && value.slice(0, 10) === 'IPY_MODEL_') {
+        // get_model returns a promise already (except when it retunrs undefined!)
+        return await manager.get_model(value.slice(10, value.length)) as T;
+    }
+}
+
+/**
  * Replace model ids with models recursively.
  */
 export
@@ -87,11 +98,20 @@ function unpack_models(
  */
 export type ISerializers<STATE, OBJSTATE> = {
     [K in keyof (STATE | OBJSTATE)]?: {
-        deserialize?: (value: STATE[K], manager?: IWidgetManager) => OBJSTATE[K];
+        deserialize?: (value: STATE[K], manager?: IWidgetManager) => Promise<OBJSTATE[K]> | OBJSTATE[K];
         serialize?: (value: OBJSTATE[K], widget?: WidgetModel) => STATE[K];
     }
 }
 
+export interface IWidgetModelState {
+    _model_module: string;
+    _model_name: string;
+    _model_module_version: string;
+    _view_module: string | null;
+    _view_name: string | null;
+    _view_module_version: string | null;
+    _view_count: number | null;
+}
 
 /**
  * The widget manager provides an IDataStore with a generic state, and each
@@ -101,7 +121,7 @@ export type ISerializers<STATE, OBJSTATE> = {
  * todo: abstract out comms to the data store, so the widget has some idea of connection status with the data store. also, the data store needs a way to send one-off custom messages, not just sync state.
  */
 export
-class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any> extends Backbone.Model {
+class WidgetModel<STATE = IWidgetModelState, OBJSTATE = IWidgetModelState> extends Backbone.Model {
 
     /**
      * The default attributes.
@@ -240,7 +260,7 @@ class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any>
 
     private _handleStateChange(state: Partial<STATE>): void {
         this.state_change = this.state_change.then(() => {
-            return WidgetModel.deserialize_state(state, this.widget_manager);
+            return WidgetSerializing.deserialize_state(state, this.widget_manager);
         }).then((state) => {
             this.set_state(state);
         }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
@@ -267,7 +287,7 @@ class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any>
                         });
 
                         utils.put_buffers(state, buffer_paths, buffers);
-                        return WidgetModel.deserialize_state(state, this.widget_manager);
+                        return WidgetSerializing.deserialize_state(state, this.widget_manager);
                     }).then((state) => {
                         this.set_state(state);
                     }).catch(utils.reject(`Could not process update msg for model id: ${this.model_id}`, true));
@@ -476,7 +496,7 @@ class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any>
      * binary array buffers.
      */
     serialize(state: Partial<OBJSTATE>): Partial<STATE> {
-        return WidgetModel.serialize_state<OBJSTATE, STATE>(state, this, WidgetModel.serializers);
+        return WidgetSerializing.serialize_state<OBJSTATE, STATE>(state, this, WidgetModel.serializers);
     }
 
     /**
@@ -576,12 +596,27 @@ class WidgetModel<STATE = any, OBJSTATE extends {[k in keyof STATE]: any} = any>
     private _pending_msgs: number;
 }
 
+export interface IDOMWidgetModelState extends IWidgetModelState {
+    layout: string;
+    style: string;
+    tabbable: null | boolean;
+    tooltip: null | boolean;
+}
+
+export interface IDOMWidgetModelObjectState extends IWidgetModelState {
+    layout: LayoutModel | undefined;
+    style: StyleModel | undefined;
+    tabbable: null | boolean;
+    tooltip: null | boolean;
+}
+
+
 export
-class DOMWidgetModel extends WidgetModel {
-    static serializers: ISerializers<any, any> = {
+class DOMWidgetModel<STATE extends IDOMWidgetModelState = IDOMWidgetModelState, OBJSTATE extends IDOMWidgetModelObjectState = IDOMWidgetModelObjectState> extends WidgetModel {
+    static serializers: ISerializers<IDOMWidgetModelState, IDOMWidgetModelObjectState> = {
         ...WidgetModel.serializers,
-        layout: {deserialize: unpack_models},
-        style: {deserialize: unpack_models},
+        layout: {deserialize: unpack_model},
+        style: {deserialize: unpack_model},
     };
 
     defaults(): Backbone.ObjectHash {
@@ -601,15 +636,15 @@ class DOMWidgetModel extends WidgetModel {
 
 
 
-export namespace WidgetModel {
+export namespace WidgetSerializing {
     /**
      * Returns a promise for the deserialized state. The second argument
      * is an instance of widget manager, which is required for the
      * deserialization of widget models.
      */
     // eslint-disable-next-line
-    export function deserialize_state<STATE, OBJSTATE extends {[P in keyof STATE]: any}>(state: Partial<STATE>, manager: IWidgetManager, serializers: ISerializers<STATE, OBJSTATE> = {}): Promise<utils.Unpromisify<Partial<OBJSTATE>>>  {
-        const deserialized: Partial<OBJSTATE> = {};
+    export async function deserialize_state<STATE, OBJSTATE extends {[P in keyof STATE]: any}>(state: Partial<STATE>, manager: IWidgetManager, serializers: ISerializers<STATE, OBJSTATE> = {}): Promise<Partial<utils.Unpromisify<OBJSTATE>>>  {
+        const deserialized: Partial<utils.Promisify<OBJSTATE>> = {};
         for (const k in state) {
             const deserialize = serializers[k]?.deserialize;
             if (deserialize) {
@@ -619,7 +654,9 @@ export namespace WidgetModel {
                     deserialized[k] = state[k] as OBJSTATE[typeof k];
             }
         }
-        return utils.resolvePromisesDict(deserialized);
+        // We should not have to cast below, so we might be missing a corner
+        // case in our type reasoning.
+        return utils.resolvePromisesDict(deserialized) as Promise<Partial<utils.Unpromisify<OBJSTATE>>>;
     }
 
     /**
