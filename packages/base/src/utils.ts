@@ -57,24 +57,22 @@ function uuid(): string {
 export
 type Dict<T> = { [keys: string]: T };
 
+export type Unpromisify<T> = {
+    [K in keyof T]: T[K] extends PromiseLike<infer U> ? U : T[K]
+};
+
 /**
  * Resolve a promiseful dictionary.
  * Returns a single Promise.
  */
 export
-function resolvePromisesDict<V>(d: Dict<PromiseLike<V>>): Promise<Dict<V>> {
-    const keys = Object.keys(d);
-    const values: PromiseLike<V>[] = [];
-    keys.forEach(function(key) {
-        values.push(d[key]);
-    });
-    return Promise.all(values).then((v) => {
-        const d: Dict<V> = {};
-        for (let i=0; i < keys.length; i++) {
-            d[keys[i]] = v[i];
-        }
-        return d;
-    });
+async function resolvePromisesDict<T>(d: T): Promise<Unpromisify<T>> {
+    const keys = Object.keys(d) as unknown as (keyof T)[];
+    const valuePromises: any[] = keys.map(k => (d as any)[k]);
+    const values = await Promise.all(valuePromises);
+    const result: Unpromisify<T> = {} as Unpromisify<T>;
+    keys.forEach((k, i) => { result[k] = values[i]; })
+    return result;
 }
 
 /**
