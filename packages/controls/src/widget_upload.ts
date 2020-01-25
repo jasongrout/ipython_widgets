@@ -122,7 +122,6 @@ export class FileUploadView extends DOMWidgetView {
 
   update(): void {
     this.el.disabled = this.model.get('disabled');
-    this.el.setAttribute('title', this.model.get('tooltip'));
 
     const value: [] = this.model.get('value');
     const description = `${this.model.get('description')} (${value.length})`;

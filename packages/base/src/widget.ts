@@ -953,6 +953,7 @@ export class DOMWidgetView extends WidgetView {
     if (!title) {
       this.el.removeAttribute('title');
     } else if (this.model.get('description').length === 0) {
+      // Why only if the description is empty?
       this.el.setAttribute('title', title);
     }
   }

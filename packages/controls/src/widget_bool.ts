@@ -108,16 +108,6 @@ export class CheckboxView extends DescriptionView {
     }
   }
 
-  updateTooltip(): void {
-    if (!this.checkbox) return; // we might be constructing the parent
-    const title = this.model.get('tooltip');
-    if (!title) {
-      this.checkbox.removeAttribute('title');
-    } else if (this.model.get('description').length === 0) {
-      this.checkbox.setAttribute('title', title);
-    }
-  }
-
   events(): { [e: string]: string } {
     return {
       'click input[type="checkbox"]': '_handle_click'
@@ -175,7 +165,6 @@ export class ToggleButtonModel extends BoolModel {
       ...super.defaults(),
       _view_name: 'ToggleButtonView',
       _model_name: 'ToggleButtonModel',
-      tooltip: '',
       icon: '',
       button_style: ''
     };
@@ -221,7 +210,6 @@ export class ToggleButtonView extends DOMWidgetView {
     if (options === undefined || options.updated_view !== this) {
       this.el.disabled = this.model.get('disabled');
       this.el.setAttribute('tabbable', this.model.get('tabbable'));
-      this.el.setAttribute('title', this.model.get('tooltip'));
 
       const description = this.model.get('description');
       const icon = this.model.get('icon');
