@@ -347,7 +347,7 @@ export class TabView extends DOMWidgetView {
         widget.title.closable = false;
 
         const i = ArrayExt.firstIndexOf(tabs.widgets, placeholder);
-        // insert after placeholder so that if placholder is selected, the
+        // insert after placeholder so that if placeholder is selected, the
         // real widget will be selected now (this depends on the tab bar
         // insert behavior)
         tabs.insertWidget(i + 1, widget);
@@ -439,9 +439,8 @@ export class StackedView extends BoxView {
   }
 
   update_children(): void {
-    const selected_child = this.model.get('children')[
-      this.model.get('selected_index')
-    ];
+    const selected_child =
+      this.model.get('children')[this.model.get('selected_index')];
     this.children_views
       ?.update([selected_child])
       .then((views: DOMWidgetView[]) => {
