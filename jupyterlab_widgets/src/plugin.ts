@@ -141,8 +141,30 @@ async function getWidgetManagerOwner(
   sessionContext: ISessionContext
 ): Promise<Private.IWidgetManagerOwner> {
   await sessionContext.ready;
-  return sessionContext.session!.kernel!.id;
+  return sessionContext.session?.kernel?.id;
 }
+
+// The manager should be tied to the kernel id, so if we switch to a kernel id that is already being used, we pick up that manager
+// The session context is tied to the renderers. On kernel change, it finds the right manager and assigns the renderers manager
+// When will a manager be destroyed? When a kernel shuts down (or restarts?) 
+
+// We have a kernel widget manager, used for things that don't have a notebook document, and we have a widget manager for those things that do have a widget document.
+
+// Scenario 1: notebook switch to a kernel that already has a manager: use that manager without hooking up the notebook parts
+// Scenario 2: notebook switches to kernel that does not have a manager: create a widget manager for the kernel and store it under the kernel id.
+// Scenario 3: console switches to kernel that already has a manager: use that manager
+// Scenario 4: console has kernel that does not have wm: create kernel widget manager
+
+// Does a notebook insist on having a widget manager that understands notebooks?
+// Who cleans up the widget managers? Do they destroy themselves 
+
+// We cannot have two widget managers because they don't communicate values between each other, unless we broadcast comm messages between widget managers. Also it is pretty inefficient for large data sets (think large plot data)
+
+// A notebook widget manager can change kernels, whereas a kernel widget manager can't. So we have a problem if we start a console kernel manager, then switch a notebook to use that kernel. We then have two different widget managers, or we have the notebook now having a kernel widget manager. We can't have two different widget managers, so how does a notebook deal with having a kernel widget manager?
+
+// The console and notebook widget managers *could* delegate to a kernel widget manager, which could then be swapped out as needed.
+
+// Fundamentally, the state storage should be tied to the kernel id. However, state loading and saving can also happen from a notebook document or some other source. So: have the widget state stored at the kernel level, i.e., have *just* a kernel widget manager, and the "widget manager" tied to a notebook context can swap out (or create) these kernel widget managers as needed. When a kernel dies, set the widget manager as dead?
 
 /**
  * Common handler for registering both notebook and console
@@ -163,28 +185,26 @@ async function registerWidgetHandler(
   renderers: IterableIterator<WidgetRenderer>,
   widgetManagerFactory: () => WidgetManager | KernelWidgetManager
 ): Promise<DisposableDelegate> {
-  const wManagerOwner = await getWidgetManagerOwner(sessionContext);
-  let wManager = Private.widgetManagerProperty.get(wManagerOwner);
-  let currentOwner: string;
+  let currentOwner = await getWidgetManagerOwner(sessionContext);
+  let wManager = Private.widgetManagerProperty.get(currentOwner);
 
   if (!wManager) {
     wManager = widgetManagerFactory();
     WIDGET_REGISTRY.forEach((data) => wManager!.register(data));
-    Private.widgetManagerProperty.set(wManagerOwner, wManager);
-    currentOwner = wManagerOwner;
-    content.disposed.connect((_) => {
-      const currentwManager = Private.widgetManagerProperty.get(currentOwner);
-      if (currentwManager) {
-        Private.widgetManagerProperty.delete(currentOwner);
-      }
-    });
+    Private.widgetManagerProperty.set(currentOwner, wManager);
 
+    // If we created this widget manager, then we will be responsible for updating and destroying it. Other components that pick up this manager just go along.
+    content.disposed.connect(() => {
+      Private.widgetManagerProperty.delete(currentOwner);
+      // Dispose the widget manager?
+    });
+    // Perhaps we should say that the sessioncontext disposal leads to deleting the widget manager?
     sessionContext.kernelChanged.connect((_, args) => {
       const { newValue } = args;
       if (newValue) {
         const newKernelId = newValue.id;
         const oldwManager = Private.widgetManagerProperty.get(currentOwner);
-
+  
         if (oldwManager) {
           Private.widgetManagerProperty.delete(currentOwner);
           Private.widgetManagerProperty.set(newKernelId, oldwManager);
@@ -193,6 +213,7 @@ async function registerWidgetHandler(
       }
     });
   }
+
 
   for (const r of renderers) {
     r.manager = wManager;
@@ -210,10 +231,12 @@ async function registerWidgetHandler(
     0
   );
 
+  // This disposableDelegate is not used by calling functions. Perhaps we should not return it, especially since it attempts to delete the widget manager, but above we have just the creator responsible for destroying the widget manager.
   return new DisposableDelegate(() => {
     if (rendermime) {
       rendermime.removeMimeType(WIDGET_VIEW_MIMETYPE);
     }
+    Private.widgetManagerProperty.delete(currentOwner);
     wManager!.dispose();
   });
 }
